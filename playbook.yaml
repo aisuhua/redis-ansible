@@ -1,0 +1,11 @@
+---
+- name: install redis
+  hosts: all
+  become: true
+  gather_facts: true
+  #strategy: free
+
+  roles:
+    - init
+    - redis
+    - redis_cluster

@@ -1,0 +1,24 @@
+- name: ensure build tools are installed on the system
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - make
+    - openssl-devel
+
+- name: ensuring redis performance parameters are defined
+  sysctl:
+    name: vm.overcommit_memory
+    value: "1"
+    state: present
+
+- name: ensuring the maximum number of connection count is set
+  sysctl:
+    name: net.core.somaxconn
+    value: "65365"
+    state: present
+
+- name: ensure that transparent huge page is disabled in Kernel
+  shell: "echo never > /sys/kernel/mm/transparent_hugepage/enabled"
+  changed_when: False
+

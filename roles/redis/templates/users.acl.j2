@@ -1,0 +1,3 @@
+{# https://redis.io/docs/latest/operate/oss_and_stack/management/security/acl/ #}
+user default on >{{ redis_config.password }} sanitize-payload ~* &* +@all
+user replica_user on >{{ redis_config.password }} sanitize-payload ~* &* +@all

@@ -1,0 +1,15 @@
+[Unit]
+Description=Redis {{ inventory_hostname }}
+After=network.target
+
+[Service]
+Type=simple
+LimitNOFILE=65535
+TimeoutStartSec=60
+TimeoutStopSec=0
+ExecStart={{ redis_install_dir }}/bin/redis-server {{ redis_install_dir }}/conf/redis.conf
+User={{ redis_run_user }}
+Group={{ redis_run_group }}
+
+[Install]
+WantedBy=multi-user.target

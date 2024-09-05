@@ -1,0 +1,46 @@
+- name: create node directory
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+  loop:
+    - "{{ redis_install_dir }}/data"
+    - "{{ redis_install_dir }}/conf"
+    - "{{ redis_install_dir }}/logs"
+    - "{{ redis_install_dir }}/tmp"
+
+- name: set redis config
+  template:
+    src: redis.conf.j2
+    dest: "{{ redis_install_dir }}/conf/redis.conf"
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+  notify: restart redis
+
+- name: set users.acl config
+  template:
+    src: users.acl.j2
+    dest: "{{ redis_install_dir }}/conf/users.acl"
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+  notify: restart redis
+
+- name: set redis.service config
+  template:
+    src: redis.service.j2
+    dest: "/etc/systemd/system/{{ redis_service_name }}.service"
+    mode: 0664
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+  notify: 
+    - systemctl daemon-reload
+    - restart redis
+
+- name: ensuring that handlers are executed
+  meta: flush_handlers
+
+- name: start redis
+  service: 
+    name: "{{ redis_service_name }}"
+    state: started

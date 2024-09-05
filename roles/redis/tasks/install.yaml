@@ -1,0 +1,61 @@
+- name: create service user
+  user:
+    name: "{{ redis_run_user }}"
+    state: present
+  throttle: 1
+
+- name: ensure if redis is previously installed or not
+  stat:
+    path: "{{ redis_install_dir }}/bin/redis-server"
+  register: redis_status
+
+- name: ensure install dir exists
+  file:
+    path: "{{ redis_install_dir }}"
+    state: directory
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+  when: not redis_status.stat.exists
+
+- name: ensure build dir exists
+  file:
+    path: "{{ redis_build_dir }}"
+    state: directory
+  when: not redis_status.stat.exists
+
+- name: download redis
+  unarchive:
+    src: "{{ redis_download_url }}"
+    dest: "{{ redis_build_dir }}"
+    remote_src: yes
+  when: not redis_status.stat.exists
+
+- name: build redis
+  make:
+    chdir: "{{ redis_build_dir }}/redis-{{ redis_version }}"
+    params: 
+      --jobs: 8
+      BUILD_TLS: yes
+  when: not redis_status.stat.exists
+ 
+- name: ensuring redis server is installed on the system
+  make:
+    chdir: "{{ redis_build_dir }}/redis-{{ redis_version }}"
+    target: install
+    params: 
+      PREFIX: "{{ redis_install_dir }}"
+  when: not redis_status.stat.exists
+
+- name: change install directory permission
+  file:
+    path: "{{ redis_install_dir }}"
+    owner: "{{ redis_run_user }}"
+    group: "{{ redis_run_group }}"
+    state: directory
+    recurse: true
+  when: not redis_status.stat.exists
+ 
+- name: remove install file
+  file:
+    path: "{{ redis_build_dir }}"
+    state: absent

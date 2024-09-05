@@ -1,0 +1,31 @@
+ungrouped:
+  hosts:
+    node1-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7000
+    node2-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7001
+    node3-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7002
+    node4-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7003
+    node5-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7004
+    node6-redis1:
+      ansible_ssh_host: 172.31.96.151
+      redis_port: 7005
+  vars:
+    redis_version: 7.2.4
+    redis_download_url: http://172.31.96.1/redis/redis-7.2.4.tar.gz
+    redis_install_dir: "/opt/redis/{{ redis_version }}/{{ inventory_hostname }}"
+    redis_service_name: "redis-{{ redis_version }}-{{ inventory_hostname }}"
+    redis_build_dir: "/tmp/redis/{{ redis_version  }}/{{ inventory_hostname }}"
+    redis_run_user: redis
+    redis_run_group: redis
+    redis_config:
+      password: Luck@u99
+      maxmemory: 128mb

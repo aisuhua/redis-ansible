@@ -1,0 +1,60 @@
+bind 0.0.0.0
+
+port {{ redis_port }}
+
+daemonize no
+supervised systemd
+
+pidfile {{ redis_install_dir }}/tmp/redis.pid
+
+timeout 300
+tcp-keepalive 300
+tcp-backlog 8192
+
+protected-mode yes
+acllog-max-len 128
+
+{% if redis_config.password is defined %}
+aclfile {{ redis_install_dir }}/conf/users.acl
+{% endif %}
+
+loglevel notice
+logfile {{ redis_install_dir }}/logs/redis.log
+slowlog-log-slower-than 100000
+slowlog-max-len 1000
+
+databases 16
+
+maxclients 10000
+
+maxmemory {{ redis_config.maxmemory | default('1gb') }}
+maxmemory-policy allkeys-lru
+
+active-expire-effort 3
+
+save ""
+appendonly yes
+
+dir {{ redis_install_dir }}/data
+
+repl-disable-tcp-nodelay yes
+
+client-output-buffer-limit normal  0  0   0
+client-output-buffer-limit slave   512mb  256mb 60
+client-output-buffer-limit pubsub  512mb  256mb   60
+
+stream-node-max-bytes 8192
+stream-node-max-entries 200
+
+hz 30
+dynamic-hz yes
+
+cluster-enabled yes
+cluster-config-file {{ redis_install_dir }}/conf/nodes.conf
+cluster-node-timeout 10000
+cluster-require-full-coverage no
+
+{% if redis_config.password is defined %}
+masteruser replica_user
+masterauth {{ redis_config.password }}
+{% endif %}

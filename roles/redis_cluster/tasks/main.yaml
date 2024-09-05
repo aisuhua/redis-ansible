@@ -1,0 +1,26 @@
+# https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/
+# https://redis.io/learn/operate/redis-at-scale/scalability/exercise-1
+- name: define redis-cli command
+  set_fact:
+    redis_command: "{{ redis_install_dir }}/bin/redis-cli -a {{ redis_config.password }} -p {{ redis_port  }}"
+  run_once: true
+
+- name: ensuring the list of redis cluster nodes created
+  set_fact:
+    ip_list: "{{ ip_list | default('') + (hostvars[item].ansible_ssh_host | string + ':' + hostvars[item].redis_port | string + ' ') }}"
+  loop: "{{ groups['all'] }}"
+  run_once: true
+
+- name: ensure if redis cluster exists or not
+  command: "{{ redis_command }} cluster nodes"
+  run_once: true 
+  register: command_result
+  changed_when: false
+
+- name: ensuring redis cluster is created
+  command: |-
+    {{ redis_command }} --cluster create {{ ip_list }} --cluster-replicas 1 --cluster-yes
+  args:
+    stdin: "yes"
+  when: command_result.stdout.split('\n')|length < groups['all']|length
+  run_once: true

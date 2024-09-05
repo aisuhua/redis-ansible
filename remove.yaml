@@ -1,0 +1,31 @@
+---
+- name: remove cluster
+  hosts: all
+  become: true
+  gather_facts: true
+
+  roles:
+    - init
+  
+  tasks:
+    - name: stop redis service
+      service:
+        name: "{{ redis_service_name }}"
+        enabled: false
+        state: stopped
+      ignore_errors: true
+
+    - name: remove systemd service file
+      file:
+        path: "/etc/systemd/system/{{ redis_service_name }}.service"
+        state: absent
+
+    - name: remove cluster folder
+      file:
+        path: "{{ redis_install_dir }}"
+        state: absent
+
+    - name: remove build dir
+      file:
+        path: "{{ redis_build_dir }}"
+        state: absent

@@ -1,3 +1,8 @@
+- name: wait for port is listening
+  wait_for:
+    port: "{{ redis_port }}"
+    timeout: 90
+
 # https://redis.io/docs/latest/operate/oss_and_stack/management/scaling/
 # https://redis.io/learn/operate/redis-at-scale/scalability/exercise-1
 - name: define redis-cli command

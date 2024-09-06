@@ -1,5 +1,5 @@
 - name: create service group
-  user:
+  group:
     name: "{{ redis_run_group }}"
     state: present
   throttle: 1
@@ -8,6 +8,8 @@
   user:
     name: "{{ redis_run_user }}"
     group: "{{ redis_run_group }}"
+    shell: "{{ '/usr/sbin/nologin' if redis_run_noshell is defined and (redis_run_noshell | bool) else '/bin/bash' }}"
+    password: "{{ redis_run_pass | password_hash('sha512', 'suhua123') if redis_run_pass is defined else omit }}"
     state: present
   throttle: 1
 

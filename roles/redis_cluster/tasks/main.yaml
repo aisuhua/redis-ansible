@@ -19,6 +19,7 @@
 - name: ensure if redis cluster exists or not
   command: "{{ redis_command }} cluster nodes"
   run_once: true 
+  become_user: "{{ redis_run_user }}"
   register: command_result
   changed_when: false
 
@@ -27,5 +28,6 @@
     {{ redis_command }} --cluster create {{ ip_list }} --cluster-replicas 1 --cluster-yes
   args:
     stdin: "yes"
+  become_user: "{{ redis_run_user }}"
   when: command_result.stdout.split('\n')|length < groups['all']|length
   run_once: true
